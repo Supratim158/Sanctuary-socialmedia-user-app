@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sanctuary/screen/authenticaton/login_screen.dart';
 import 'package:sanctuary/screen/authenticaton/widget/email_textfield.dart';
 import 'package:sanctuary/screen/authenticaton/widget/password_textfield.dart';
+import 'package:sanctuary/services/auth_services.dart';
 
 import '../../widgets/animated_button.dart';
 
@@ -16,15 +17,57 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
 
-  final userNameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  void _register() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final userName = _userNameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    if (userName.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
+      try {
+        var isSuccess = await AuthServices.registerUser(userName, email, password);
+
+        if (isSuccess) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration successful! Please login.')),
+          );
+          Navigator.pushReplacementNamed(context, '/login');
+        } else {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration failed. Please try again.')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   @override
   void dispose() {
-    userNameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
+    _userNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -136,32 +179,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             CustomEmailField(
                               hintText: "User Name",
-                              controller: userNameController,
+                              controller: _userNameController,
                             ),
 
                             const SizedBox(height: 20),
 
                             CustomEmailField(
                               hintText: "Email",
-                              controller: emailController,
+                              controller: _emailController,
                             ),
 
                             const SizedBox(height: 20),
 
                             CustomPasswordField(
-                              controller: passwordController,
+                              controller: _passwordController,
                             ),
 
                             const SizedBox(height: 30),
 
-                            GlassmorphicButton(
-                              text: "Create",
-                              icon: Icons.arrow_forward_rounded,
+                            _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  )
+                                : GlassmorphicButton(
+                                    text: "Create",
+                                    icon: Icons.arrow_forward_rounded,
 
-                              onTap: () {
-
-                              },
-                            ),
+                                    onTap: _register,
+                                  ),
 
                             const SizedBox(height: 20),
 
@@ -182,11 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 GestureDetector(
 
                                   onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder:
-                                                (context)=>LoginScreen()));
+                                    Navigator.pushNamed(context, '/login');
                                   },
 
                                   child: const Text(

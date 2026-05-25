@@ -47,7 +47,8 @@ class OnboardingScreen extends StatelessWidget {
                     //     transitionDuration: const Duration(milliseconds: 500),
                     //   ),
                     // );
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+                    // Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+                    Navigator.pushNamed(context, '/login');
                   },
                     child: Text("Get Started"),
                 ),
