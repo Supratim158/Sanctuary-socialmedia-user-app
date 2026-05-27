@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sanctuary/screen/home_screen.dart';
+import 'package:sanctuary/screen/home/home_screen.dart';
 import 'package:sanctuary/screen/reels_screen.dart';
-import 'package:sanctuary/screen/post_screen.dart';
+import 'package:sanctuary/screen/post/post_screen.dart';
 import 'package:sanctuary/screen/message_screen.dart';
 import 'package:sanctuary/screen/profile_screen.dart';
 
@@ -49,19 +49,30 @@ class _EntryPageState extends State<EntryPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF18202D),
-      // Using extendBody so content renders behind the bottom nav
       extendBody: true,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
+      body: Stack(
+        children: [
+          // Main content fills the entire screen
+          IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+          // Floating glassmorphic nav bar positioned over the content
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _buildGlassmorphicNavBar(),
+          ),
+        ],
       ),
-      bottomNavigationBar: _buildGlassmorphicNavBar(),
     );
   }
 
   Widget _buildGlassmorphicNavBar() {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      margin: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding + 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
